@@ -1,6 +1,7 @@
 #include <cmath>
 #include <tice.h>
 #include <graphx.h>
+#include <keypadc.h>
 #include <debug.h>
 
 double PI = 3.14159265;
@@ -41,9 +42,9 @@ struct xy {
 // function c plots cylindrical coordinates
 xy c(double theta, double r, double h) {
     double zres = d - z(theta, r, h);
-    if (zres <= 0) {
-        return {NAN, NAN};
-    }
+//    if (zres <= 0) {
+//        return {NAN, NAN};
+//    }
 
     double thing = (d / zres);
     double x = thing * r * cosdegrees(a + theta);
@@ -95,6 +96,23 @@ int main() {
     // Loop until a key is pressed
     xy projected_points[8] = {};
     do {
+        kb_Scan();
+        // key control
+        if (kb_IsDown(kb_KeyUp)) a_2 -= 10;
+        if (kb_IsDown(kb_KeyDown)) a_2 += 10;
+        if (kb_IsDown(kb_KeyLeft)) a += 10;
+        if (kb_IsDown(kb_KeyRight)) a -= 10;
+        if (kb_IsDown(kb_KeyAdd)) d -= 0.5;
+        if (kb_IsDown(kb_KeySub)) d += 0.5;
+
+        // bound properly
+        if (a > 180) a -= 360;
+        if (a < -180) a += 360;
+        if (a_2 > 180) a_2 -= 360;
+        if (a_2 < -180) a_2 += 360;
+        if (d > 7) d = 7;
+        if (d < 2) d = 2;
+
         gfx_FillScreen(255);
         for (int i = 0; i < 8; ++i) {
             projected_points[i] = c(cylindricalcube[i].x, cylindricalcube[i].y, cylindricalcube[i].z);
@@ -110,16 +128,8 @@ int main() {
 
         // Swap the buffer with the screen
         gfx_SwapDraw();
-        // rotateeee
-        a += 10;
-        a_2 += 1;
-        if (a > 180) {
-            a -= 360;
-        }
-        if (a_2 > 180) {
-            a_2 -= 360;
-        }
-    } while (!os_GetCSC());
+
+    } while (!kb_IsDown(kb_KeyEnter));
 
     // End graphics drawing
     gfx_End();
