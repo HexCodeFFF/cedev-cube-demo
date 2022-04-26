@@ -8,8 +8,9 @@ DESCRIPTION = "CE C Toolchain Demo"
 COMPRESSED = NO
 ARCHIVED = NO
 
-CFLAGS = -Wall -Wextra -Oz
-CXXFLAGS = -Wall -Wextra -Oz
+# Oz is best for size, 03 is best for the speed
+CFLAGS = -Wall -Wextra -O3
+CXXFLAGS = -Wall -Wextra -O3
 
 # ----------------------------
 

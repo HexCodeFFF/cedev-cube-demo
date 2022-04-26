@@ -1,54 +1,54 @@
-#include <cmath>
 #include <tice.h>
 #include <graphx.h>
 #include <keypadc.h>
-#include <debug.h>
+#include "fasttrig.h"
 
-double PI = 3.14159265;
+float PI = 3.14159265;
+float PIOVER180 = PI / 180;
 
-double a = 0.0; // l-r rotation
-double a_2 = 0.0; // u-d rotation
-double d = 4.0; // distance i think?
+float a = 0.0; // l-r rotation
+float a_2 = 0.0; // u-d rotation
+float d = 4.0; // distance i think?
 
-double sindegrees(double degrees) {
-    return sin(degrees * (PI / 180));
+float sindegrees(float degrees) {
+    return fastsin(degrees * PIOVER180);
 }
 
-double cosdegrees(double degrees) {
-    return cos(degrees * (PI / 180));
+float cosdegrees(float degrees) {
+    return fastcos(degrees * PIOVER180);
 }
 
 // function z determines the z position of a cylindrical coordinate
-double z(double theta, double r, double h) {
+float z(float theta, float r, float h) {
     // \cos\left(a_{2}\right)r\sin\left(a+\theta\right)-\sin\left(a_{2}\right)h
     return (cosdegrees(a_2) * r * sindegrees(a + theta)) - (sindegrees(a_2) * h);
 }
 
 struct xyz {
-    double x;
-    double y;
-    double z;
+    float x;
+    float y;
+    float z;
 };
 
-xyz ctoc(double x, double y, double z) {
-    return {atan2(y, x) * (180 / PI), sqrt(pow(x, 2) + pow(y, 2)), z};
+xyz ctoc(float x, float y, float z) {
+    return {atan2f(y, x) * (180 / PI), sqrtf(x*x + y*y), z};
 }
 
 struct xy {
-    double x;
-    double y;
+    float x;
+    float y;
 };
 
 // function c plots cylindrical coordinates
-xy c(double theta, double r, double h) {
-    double zres = d - z(theta, r, h);
+xy c(float theta, float r, float h) {
+    float zres = d - z(theta, r, h);
 //    if (zres <= 0) {
 //        return {NAN, NAN};
 //    }
 
-    double thing = (d / zres);
-    double x = thing * r * cosdegrees(a + theta);
-    double y = thing * ((r * sindegrees(a_2) * sindegrees(a + theta)) + (h * cosdegrees(a_2)));
+    float thing = (d / zres);
+    float x = thing * r * cosdegrees(a + theta);
+    float y = thing * ((r * sindegrees(a_2) * sindegrees(a + theta)) + (h * cosdegrees(a_2)));
     return {x, y};
 }
 
@@ -98,10 +98,11 @@ int main() {
     do {
         kb_Scan();
         // key control
-        if (kb_IsDown(kb_KeyUp)) a_2 -= 10;
-        if (kb_IsDown(kb_KeyDown)) a_2 += 10;
-        if (kb_IsDown(kb_KeyLeft)) a += 10;
-        if (kb_IsDown(kb_KeyRight)) a -= 10;
+        float rotspeed = 5;
+        if (kb_IsDown(kb_KeyUp)) a_2 -= rotspeed;
+        if (kb_IsDown(kb_KeyDown)) a_2 += rotspeed;
+        if (kb_IsDown(kb_KeyLeft)) a += rotspeed;
+        if (kb_IsDown(kb_KeyRight)) a -= rotspeed;
         if (kb_IsDown(kb_KeyAdd)) d -= 0.5;
         if (kb_IsDown(kb_KeySub)) d += 0.5;
 
@@ -119,10 +120,10 @@ int main() {
         }
 
         for (auto cl: cube) {
-            gfx_Line(int(projected_points[cl.index0].x * LCD_HEIGHT / 4) + LCD_WIDTH / 2,
-                     int(projected_points[cl.index0].y * LCD_HEIGHT / 4) + LCD_HEIGHT / 2,
-                     int(projected_points[cl.index1].x * LCD_HEIGHT / 4) + LCD_WIDTH / 2,
-                     int(projected_points[cl.index1].y * LCD_HEIGHT / 4) + LCD_HEIGHT / 2);
+            gfx_Line(int(projected_points[cl.index0].x * (LCD_HEIGHT / 4)) + (LCD_WIDTH / 2),
+                     int(projected_points[cl.index0].y * (LCD_HEIGHT / 4)) + (LCD_HEIGHT / 2),
+                     int(projected_points[cl.index1].x * (LCD_HEIGHT / 4)) + (LCD_WIDTH / 2),
+                     int(projected_points[cl.index1].y * (LCD_HEIGHT / 4)) + (LCD_HEIGHT / 2));
         }
 
 
