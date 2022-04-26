@@ -31,7 +31,7 @@ struct xyz {
 };
 
 xyz ctoc(float x, float y, float z) {
-    return {atan2f(y, x) * (180 / PI), sqrtf(x*x + y*y), z};
+    return {atan2f(y, x) * (180 / PI), sqrtf(x * x + y * y), z};
 }
 
 struct xy {
@@ -62,6 +62,7 @@ int main() {
     gfx_Begin();
     gfx_SetDrawBuffer();
 
+    // coordinates of the cube
     xyz cartesiancube[8] = {
             {-1, -1, -1},
             {-1, -1, 1},
@@ -74,6 +75,7 @@ int main() {
     };
     xyz cylindricalcube[8] = {};
 
+    // lines of the cube from indexes of coordnates
     cubeline cube[12] = {
             {0, 1},
             {1, 3},
@@ -90,10 +92,10 @@ int main() {
     };
 
     for (int i = 0; i < 8; ++i) {
+        // i stole the math from JohnDoesStuff on YT and he uses cylindrical coords, convert
         cylindricalcube[i] = ctoc(cartesiancube[i].x, cartesiancube[i].y, cartesiancube[i].z);
     }
 
-    // Loop until a key is pressed
     xy projected_points[8] = {};
     do {
         kb_Scan();
@@ -115,10 +117,12 @@ int main() {
         if (d < 2) d = 2;
 
         gfx_FillScreen(255);
+        // calculate positions of 8 points first
         for (int i = 0; i < 8; ++i) {
             projected_points[i] = c(cylindricalcube[i].x, cylindricalcube[i].y, cylindricalcube[i].z);
         }
 
+        // draw lines between points
         for (auto cl: cube) {
             gfx_Line(int(projected_points[cl.index0].x * (LCD_HEIGHT / 4)) + (LCD_WIDTH / 2),
                      int(projected_points[cl.index0].y * (LCD_HEIGHT / 4)) + (LCD_HEIGHT / 2),
